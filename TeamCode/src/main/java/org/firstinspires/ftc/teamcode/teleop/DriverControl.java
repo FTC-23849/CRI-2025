@@ -24,6 +24,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.Robot;
 
 @TeleOp(name = "DriverControl", group = "stuff")
 
@@ -38,6 +41,25 @@ public class DriverControl extends OpMode {
     DcMotorEx outtakeSlideMotor_right;
 
     DcMotorEx intakeMotor;
+    Servo intakeTurret;
+    Servo intakePivot;
+    Servo intakeWrist;
+    Servo intakeClaw;
+
+
+    boolean intakeRetracted = true;
+    boolean intakeClawClosed = false;
+    int scoringCycle = 0;
+    int intakeCycle = 0;
+    boolean rightBumperPressed = false;
+    int backTimes = 0;
+    boolean scoringSpec = true;
+    boolean backPressed = false;
+    int intakePickupPosition = 2;
+    boolean leftBumperPressed = false;
+    int intakePickupCycle = 0;
+
+
 
 
     @Override
@@ -67,12 +89,17 @@ public class DriverControl extends OpMode {
         outtakeSlideMotor_left.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+        intakeTurret = hardwareMap.get(Servo.class, "intakeTurret");
+        intakePivot = hardwareMap.get(Servo.class, "intakePivot");
+        intakeWrist = hardwareMap.get(Servo.class, "intakeWrist");
+        intakeClaw = hardwareMap.get(Servo.class, "intakeClaw");
+
     }
 
     @Override
     public void loop() {
 
-        telemetry.addData("gamepad2rightsticky", gamepad2.right_stick_y);
+
         telemetry.update();
 
         //Drive Code
@@ -91,6 +118,159 @@ public class DriverControl extends OpMode {
         rightFrontMotor.setPower(rightFrontPower);
         rightBackMotor.setPower(rightBackPower);
 
+        //intake
+        if(gamepad1.right_bumper){
+            if(intakeRetracted == false){
+                if(rightBumperPressed == false){
+                        intakeCycle = intakeCycle + 1;
+                }
+
+                if(intakeCycle == 1){
+                    intakePivot.setPosition(Robot.INTAKE_PIVOT_PICKUP);
+
+                }
+                if(intakeCycle == 2){ rightBumperPressed = true;
+                    intakeClaw.setPosition(Robot.INTAKE_CLAW_CLOSE);
+                    intakeClawClosed = true;
+
+                }
+                if(intakeCycle == 3){
+                    intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
+                    intakeClawClosed = false;
+                    intakeCycle = 1;
+                }
+            }
+            if(intakeRetracted == false){
+                if(rightBumperPressed == false){
+                    scoringCycle = scoringCycle +1;
+                }
+                rightBumperPressed = true;
+                //outtake code here
+            }
+
+        }
+        else{
+            rightBumperPressed = false;
+        }
+        if(gamepad1.left_bumper){
+            if(leftBumperPressed = false){
+                intakePickupCycle = intakePickupCycle + 1;
+            }
+            leftBumperPressed = true;
+            if(intakePickupPosition == 1){
+
+                if(intakePickupCycle == 1){
+                    intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+                }
+                if(intakePickupCycle == 2){
+                    intakeWrist.setPosition(Robot.INTAKE_WRIST_LEFT90);
+                }
+            }
+            if(intakePickupPosition == 2){
+                if(intakePickupCycle == 1){
+                    intakeWrist.setPosition(Robot.INTAKE_WRIST_LEFT90);
+                }
+                if(intakePickupCycle == 2){
+                    intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+                }
+            }
+            if(intakePickupPosition == 3){
+                if(intakePickupCycle == 1){
+                    intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+                }
+                if(intakePickupCycle == 2){
+                    intakeWrist.setPosition(Robot.INTAKE_WRIST_RIGHT90);
+                }
+            }
+            if(intakePickupCycle == 2){
+                intakePickupCycle = 0;
+            }
+        }
+        else{
+            leftBumperPressed = false;
+        }
+        if(gamepad1.back){
+            if(backPressed = false){
+                backTimes = backTimes +1;
+            }
+            backPressed = true;
+            if(backTimes == 1){
+                scoringSpec = false;
+            }
+            if(backTimes == 2){
+                scoringSpec = true;
+                backTimes = 0;
+            }
+        }
+        else{
+            backPressed = false;
+        }
+        if(gamepad1.dpad_left){
+            if(intakeRetracted == false && intakeClawClosed == true ){
+                intakeTurret.setPosition(Robot.INTAKE_TURRET_DROP_LEFT);
+                intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+                intakePivot.setPosition(Robot.INTAKE_PIVOT_DROP);
+                intakeMotor.setTargetPosition(Robot.INTAKE_MOTOR_RETRACT);
+                intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                intakeMotor.setPower(1);
+                intakeRetracted = true;
+
+            }
+            if(intakeRetracted == false && intakeClawClosed == false){
+                intakeTurret.setPosition(Robot.INTAKE_TURRET_PICKUP_LEFT);
+                intakeWrist.setPosition(Robot.INTAKE_WRIST_LEFT90);
+                intakePickupPosition = 1;
+                
+
+            }
+        }
+        if(gamepad1.dpad_right){
+            if(intakeRetracted == false && intakeClawClosed == true ){
+                intakeTurret.setPosition(Robot.INTAKE_TURRET_DROP_RIGHT);
+                intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+                intakePivot.setPosition(Robot.INTAKE_PIVOT_DROP);
+                intakeMotor.setTargetPosition(Robot.INTAKE_MOTOR_RETRACT);
+                intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                intakeMotor.setPower(1);
+                intakeRetracted = true;
+
+            }
+            if(intakeRetracted == false && intakeClawClosed == false){
+                intakeTurret.setPosition(Robot.INTAKE_TURRET_PICKUP_RIGHT);
+                intakeWrist.setPosition(Robot.INTAKE_WRIST_RIGHT90);
+                intakePickupPosition = 3;
+
+
+            }
+        }
+
+        if (gamepad1.right_trigger != 0.0 ) {
+            if(intakeMotor.getCurrentPosition() < Robot.INTAKE_MOTOR_MAX_EXTEND) {
+                intakeMotor.setPower(gamepad1.right_trigger);
+            }
+            intakeRetracted = false;
+            intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_PICKUP_READY);
+            intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+            intakeTurret.setPosition(Robot.INTAKE_TURRET_PICKUP_STRAIGHT);
+            intakePickupPosition = 2;
+        }
+        else{
+            intakeMotor.setPower(0);
+        }
+
+        if (gamepad1.left_trigger != 0.0) {
+            intakeMotor.setTargetPosition(Robot.INTAKE_MOTOR_RETRACT);
+            intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            intakeMotor.setPower(1);
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
+            intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+            intakeTurret.setPosition(Robot.INTAKE_TURRET_TRANSFER);
+            intakeRetracted = true;
+
+        }
+
+
         //PTO Code
 
 
@@ -106,14 +286,7 @@ public class DriverControl extends OpMode {
             outtakeSlideMotor_right.setPower(0);
         }
 
-        //Intake Code
-        if (gamepad1.right_trigger != 0.0) {
-            intakeMotor.setPower(gamepad1.right_trigger);
-        }
 
-        if (gamepad1.left_trigger != 0.0) {
-            intakeMotor.setPower(-gamepad1.left_trigger);
-        }
 
     }
 

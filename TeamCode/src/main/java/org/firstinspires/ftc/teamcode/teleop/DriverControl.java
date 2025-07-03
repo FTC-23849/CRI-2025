@@ -28,6 +28,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+
+
 @TeleOp(name = "DriverControl", group = "stuff")
 
 public class DriverControl extends OpMode {
@@ -58,6 +62,9 @@ public class DriverControl extends OpMode {
     int intakePickupPosition = 2;
     boolean leftBumperPressed = false;
     int intakePickupCycle = 0;
+    boolean intakeRetracting = false;
+    boolean readyToDrop = false;
+    ElapsedTime intakeExtendTimer = new ElapsedTime();
 
 
 
@@ -94,12 +101,14 @@ public class DriverControl extends OpMode {
         intakeWrist = hardwareMap.get(Servo.class, "intakeWrist");
         intakeClaw = hardwareMap.get(Servo.class, "intakeClaw");
 
+        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
     }
 
     @Override
     public void loop() {
 
-
+        telemetry.addData("intakeMotor", intakeMotor.getCurrentPosition());
         telemetry.update();
 
         //Drive Code
@@ -153,6 +162,9 @@ public class DriverControl extends OpMode {
             rightBumperPressed = false;
         }
         if(gamepad1.left_bumper){
+            if(readyToDrop = true){
+                intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
+            }
             if(leftBumperPressed = false){
                 intakePickupCycle = intakePickupCycle + 1;
             }
@@ -223,6 +235,11 @@ public class DriverControl extends OpMode {
                 
 
             }
+            if(intakeRetracted == true){
+                intakeTurret.setPosition(Robot.INTAKE_TURRET_DROP_LEFT);
+                intakePivot.setPosition(Robot.INTAKE_PIVOT_DROP);
+                readyToDrop = true;
+            }
         }
         if(gamepad1.dpad_right){
             if(intakeRetracted == false && intakeClawClosed == true ){
@@ -242,24 +259,34 @@ public class DriverControl extends OpMode {
 
 
             }
-        }
-
-        if (gamepad1.right_trigger != 0.0 ) {
-            if(intakeMotor.getCurrentPosition() < Robot.INTAKE_MOTOR_MAX_EXTEND) {
-                intakeMotor.setPower(gamepad1.right_trigger);
+            if(intakeRetracted == true){
+                intakeTurret.setPosition(Robot.INTAKE_TURRET_DROP_RIGHT);
+                intakePivot.setPosition(Robot.INTAKE_PIVOT_DROP);
+                readyToDrop = true;
             }
-            intakeRetracted = false;
+        }
+        if(intakeExtendTimer.milliseconds()>250 && intakeExtendTimer.milliseconds() <450){
             intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
             intakePivot.setPosition(Robot.INTAKE_PIVOT_PICKUP_READY);
             intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
             intakeTurret.setPosition(Robot.INTAKE_TURRET_PICKUP_STRAIGHT);
             intakePickupPosition = 2;
+
         }
-        else{
-            intakeMotor.setPower(0);
+        if(gamepad1.right_trigger>0){
+            if(intakeRetracted == true){
+                intakeExtendTimer.reset();
+            }
+            intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            intakeRetracted = false;
+            intakeRetracting = false;
+            readyToDrop = false;
         }
 
-        if (gamepad1.left_trigger != 0.0) {
+        if (gamepad1.right_trigger != 0.0 && intakeMotor.getCurrentPosition() < Robot.INTAKE_MOTOR_MAX_EXTEND ) {
+            intakeMotor.setPower(gamepad1.right_trigger);
+        }
+        else if (gamepad1.left_trigger != 0.0) {
             intakeMotor.setTargetPosition(Robot.INTAKE_MOTOR_RETRACT);
             intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             intakeMotor.setPower(1);
@@ -267,8 +294,19 @@ public class DriverControl extends OpMode {
             intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
             intakeTurret.setPosition(Robot.INTAKE_TURRET_TRANSFER);
             intakeRetracted = true;
+            intakeRetracting = true;
 
         }
+
+        else if(intakeRetracting == false){
+            intakeMotor.setPower(0);
+        }
+
+        if(intakeMotor.getCurrentPosition()<5){
+            intakeRetracting = false;
+        }
+
+
 
 
         //PTO Code

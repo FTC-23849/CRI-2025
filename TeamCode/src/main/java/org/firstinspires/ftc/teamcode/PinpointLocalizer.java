@@ -34,7 +34,7 @@ public final class PinpointLocalizer implements Localizer {
         driver = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
         driver.setEncoderResolution(19.984244274729765191112255291342, DistanceUnit.MM);
-        driver.setOffsets(-74.5079015, 119.953148730229080239892968, DistanceUnit.MM);
+        driver.setOffsets(74.5079015, 119.953148730229080239892968, DistanceUnit.MM);
 
 //        driver.setEncoderResolution(1 / inPerTick, DistanceUnit.INCH);
 //        driver.setOffsets(inPerTick * PARAMS.parYTicks, inPerTick * PARAMS.perpXTicks, DistanceUnit.INCH);

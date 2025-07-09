@@ -1,6 +1,7 @@
 package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
@@ -21,16 +22,17 @@ public class MeepMeepTesting {
                 .setDimensions(13, 13)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(0, 0, 0))
-                .lineToX(30)
-                .turn(Math.toRadians(90))
-                .lineToY(30)
-                .turn(Math.toRadians(90))
-                .lineToX(0)
-                .turn(Math.toRadians(90))
-                .lineToY(0)
-                .turn(Math.toRadians(90))
-                .build());
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-7, -65, Math.toRadians(90)))
+                        .strafeTo(new Vector2d(-7, 0))
+                        .strafeTo(new Vector2d(-14, 0))
+                        .strafeTo(new Vector2d(-7, 0))
+                        .strafeTo(new Vector2d(-7, -65))
+
+                        .strafeToLinearHeading(new Vector2d(-7, 0), Math.toRadians(180))
+                        .strafeTo(new Vector2d(-14, 0))
+                        .strafeTo(new Vector2d(-7, 0))
+                        .strafeToLinearHeading(new Vector2d(-7, -65), Math.toRadians(90))
+                        .build());
 
         BufferedImage img = null;
 //        try { img = ImageIO.read(new File("MeepMeepTesting/CRIRedSample.png")); }

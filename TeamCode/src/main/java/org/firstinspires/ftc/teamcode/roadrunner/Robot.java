@@ -32,14 +32,14 @@ public class Robot {
     public static double OUTTAKE_WRIST_TRANSFER =  0.0;
     public static double OUTTAKE_WRIST_SPECIMEN_PICKUP = 0.1;
     public static double OUTTAKE_WRIST_SAMPLE_SCORE = 0.3;
-    public static double OUTTAKE_WRIST_HIGH_SPECIMEN_SCORE = 0.4;
+    public static double OUTTAKE_WRIST_HIGH_SPECIMEN_SCORE = 0.35;
     public static double OUTTAKE_WRIST_LOW_SPECIMEN_SCORE = 0.4;
     public static double OUTTAKE_CLAW_OPEN = 0.45;
     public static double OUTTAKE_CLAW_CLOSE = 0.51;
     public static int OUTTAKE_MOTOR_RETRACT = 0;
     public static int OUTTAKE_MOTOR_MAX_EXTEND = 0;
     public static int OUTTAKE_MOTOR_SAMPLE_SCORE = -700;
-    public static int OUTTAKE_MOTOR_HIGH_SPECIMEN_SCORE = -230;
+    public static int OUTTAKE_MOTOR_HIGH_SPECIMEN_SCORE = -450;
     public static int OUTTAKE_MOTOR_LOW_SPECIMEN_SCORE = 0;
     public static double LEFT_PTO_DISENGAGE = 0.25;
     public static double LEFT_PTO_ENGAGE = 0.56; // 0.46 is loose // 0.51 is still slipping

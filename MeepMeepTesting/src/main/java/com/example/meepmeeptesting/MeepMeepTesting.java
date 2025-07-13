@@ -22,16 +22,24 @@ public class MeepMeepTesting {
                 .setDimensions(13, 13)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-7, -65, Math.toRadians(90)))
-                        .strafeTo(new Vector2d(-7, 0))
-                        .strafeTo(new Vector2d(-14, 0))
-                        .strafeTo(new Vector2d(-7, 0))
-                        .strafeTo(new Vector2d(-7, -65))
-
-                        .strafeToLinearHeading(new Vector2d(-7, 0), Math.toRadians(180))
-                        .strafeTo(new Vector2d(-14, 0))
-                        .strafeTo(new Vector2d(-7, 0))
-                        .strafeToLinearHeading(new Vector2d(-7, -65), Math.toRadians(90))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-30.5, -65, Math.toRadians(90)))
+                        //Middle Spec Auto
+//                        .strafeTo(new Vector2d(-7, -45))
+//                        .strafeTo(new Vector2d(-7, -65))
+//                        .strafeTo(new Vector2d(-7, -35))
+//                        .strafeTo(new Vector2d(-7, -65))
+//                        .strafeTo(new Vector2d(-7, -25))
+//                        .strafeTo(new Vector2d(-7, -65))
+//                        .strafeTo(new Vector2d(-14, 0))
+//                        .strafeTo(new Vector2d(-7, -65))
+//                        .strafeTo(new Vector2d(-14, 0))
+//                        .strafeTo(new Vector2d(-7, -65))
+//                        .strafeTo(new Vector2d(-14, 0))
+//                        .strafeTo(new Vector2d(-7, -65))
+//                        .strafeTo(new Vector2d(-14, 0))
+//                        .strafeTo(new Vector2d(-7, -65))
+//                        .strafeTo(new Vector2d(-14, 0))
+                        .strafeTo(new Vector2d(0, 0))
                         .build());
 
         BufferedImage img = null;

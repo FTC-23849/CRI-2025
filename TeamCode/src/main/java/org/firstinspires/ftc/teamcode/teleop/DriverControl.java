@@ -136,6 +136,7 @@ public class DriverControl extends OpMode {
         rightPto = hardwareMap.get(Servo.class, "rightPto");
 
         intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
     }
 

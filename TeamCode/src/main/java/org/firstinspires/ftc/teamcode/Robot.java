@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.Servo;
+
 public class Robot {
     public static double INTAKE_TURRET_TRANSFER = 0.84;
     public static double INTAKE_TURRET_PICKUP_LEFT = 0.57;
@@ -50,10 +52,119 @@ public class Robot {
 
 
     public static class intake {
+        //flips intake turret
+        public static void intakeTurretExtend(Servo intakeTurret){
+            intakeTurret.setPosition(Robot.INTAKE_TURRET_PICKUP_STRAIGHT);
+
+        }
+        //flipse everything that isnt turret
+        public static void intakeNonTurretExtend(Servo intakePivot, Servo intakeWrist, Servo intakeClaw){
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_PICKUP_READY);
+            intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+            intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
+
+        }
+        //lowers intake to pickup
+        public static void intakeLower(Servo intakePivot){
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_PICKUP);
+        }
+        //goes to transfer position
+        public static void intakeTransfer(Servo intakeTurret, Servo intakePivot, Servo intakeWrist){
+            intakeTurret.setPosition(Robot.INTAKE_TURRET_TRANSFER);
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
+            intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+        }
+        //drops sample on left side
+        public static void intakeLeftDrop(Servo intakeTurret, Servo intakePivot, Servo intakeWrist){
+            intakeTurret.setPosition(Robot.INTAKE_TURRET_DROP_LEFT);
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_DROP);
+            intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+        }
+        //drops sample on right side
+        public static void intakeRightDrop(Servo intakeTurret, Servo intakePivot, Servo intakeWrist){
+            intakeTurret.setPosition(Robot.INTAKE_TURRET_DROP_RIGHT);
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_DROP);
+            intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
+        }
+        //turret pickusp o left side
+        public static void intakePickupLeft(Servo intakeTurret, Servo intakePivot, Servo intakeWrist){
+            intakeTurret.setPosition(Robot.INTAKE_TURRET_PICKUP_LEFT);
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_PICKUP_READY);
+            intakeWrist.setPosition(Robot.INTAKE_WRIST_LEFT90);
+        }
+        //turret pickups on right side
+        public static void intakePickupRight(Servo intakeTurret, Servo intakePivot, Servo intakeWrist){
+            intakeTurret.setPosition(Robot.INTAKE_TURRET_PICKUP_RIGHT);
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_PICKUP_READY);
+            intakeWrist.setPosition(Robot.INTAKE_WRIST_RIGHT90);
+        }
+        //opens intake claw
+        public static void intakeClawOpen(Servo intakeClaw){
+            intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
+        }
+        //closes intake claw
+        public static void intakeClawClose(Servo intakeClaw){
+            intakeClaw.setPosition(Robot.INTAKE_CLAW_CLOSE);
+        }
 
     }
 
     public static class outtake {
+        //transfer position
+        public static void outtakeTransfer(Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist, Servo outtakeClaw){
+            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_TRANSFER);
+            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_TRANSFER);
+            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_TRANSFER);
+            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
+
+        }
+        //goes to sample score
+        public static void outtakeSampleScore(Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist){
+            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SAMPLE_SCORE);
+            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SAMPLE_SCORE);
+            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SAMPLE_SCORE);
+        }
+        //goes to speicmen pickup
+        public static void outtakeSpecPickup(Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist, Servo outtakeClaw){
+            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
+            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
+            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SPECIMEN_PICKUP);
+            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
+        }
+        //goes to score high cshamber
+        public static void outtakeHighChamber(Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist){
+            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_HIGH_SPECIMEN_SCORE);
+            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_HIGH_SPECIMEN_SCORE);
+            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_HIGH_SPECIMEN_SCORE);
+        }
+        //goes to score low hcamebr
+        public static void outtakeLowChamber(Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist){
+            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_LOW_SPECIMEN_SCORE);
+            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_LOW_SPECIMEN_SCORE);
+            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_LOW_SPECIMEN_SCORE);
+        }
+        //scofes high hcamber on left side
+        public static void outtakeLeftScore(Servo outtakeTurret){
+            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_LEFT90);
+        }
+        //scores high chamber on right side
+        public static void outtakeRightScore(Servo outtakeTurret){
+            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_RIGHT90);
+        }
+        //opens outtake claw
+        public static void outtakeClawOpen(Servo outtakeClaw){
+            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
+        }
+        //clsoes outtaek calw
+        public static void outtakeClawClose(Servo outtakeClaw){
+            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_CLOSE);
+        }
+
 
     }
 

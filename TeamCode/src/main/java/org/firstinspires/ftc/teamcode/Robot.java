@@ -29,6 +29,7 @@ public class Robot {
     public static double OUTTAKE_PIVOT_SPECIMEN_PICKUP = 1;
     public static double OUTTAKE_PIVOT_HIGH_SPECIMEN_SCORE = 0.350;
     public static double OUTTAKE_PIVOT_LOW_SPECIMEN_SCORE = 0.35;
+    public static double OUTTAKE_PIVOT_HANG = 0.7;
     public static double OUTTAKE_TURRET_STRAIGHT = 0.49;
     public static double OUTTAKE_TURRET_LEFT90 = 0.17;
     public static double OUTTAKE_TURRET_RIGHT90 = 0.85;
@@ -45,9 +46,9 @@ public class Robot {
     public static int OUTTAKE_MOTOR_HIGH_SPECIMEN_SCORE = -400;
     public static int OUTTAKE_MOTOR_LOW_SPECIMEN_SCORE = 0;
     public static double LEFT_PTO_DISENGAGE = 0.25;
-    public static double LEFT_PTO_ENGAGE = 0.56; // 0.46 is loose // 0.51 is still slipping
+    public static double LEFT_PTO_ENGAGE = 0.7; // 0.46 is loose // 0.51 is still slipping
     public static double RIGHT_PTO_DISENGAGE = 0.5;
-    public static double RIGHT_PTO_ENGAGE = 0.15; // 0.3 is loose, 0.2 is still too lose
+    public static double RIGHT_PTO_ENGAGE = 0.1; // 0.3 is loose, 0.2 is still too lose
 
 
 

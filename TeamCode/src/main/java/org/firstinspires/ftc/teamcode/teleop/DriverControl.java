@@ -56,6 +56,7 @@ public class DriverControl extends OpMode {
     Servo outtakeClaw;
     Servo leftPto;
     Servo rightPto;
+    Servo displayLight;
 
 
     boolean intakeRetracted = true; // keeps track if intake is retracted
@@ -136,6 +137,7 @@ public class DriverControl extends OpMode {
         outtakeClaw = hardwareMap.get(Servo.class, "outtakeClaw");
         leftPto = hardwareMap.get(Servo.class, "leftPto");
         rightPto = hardwareMap.get(Servo.class, "rightPto");
+        displayLight = hardwareMap.get(Servo.class, "displayLight");
 
         intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intakeMotor.setDirection(DcMotorEx.Direction.REVERSE);
@@ -186,6 +188,19 @@ public class DriverControl extends OpMode {
             rightPto.setPosition(Robot.RIGHT_PTO_DISENGAGE);
         }
         totalCycleTimes = totalCycleTimes+1;
+
+        if(scoringSpec == false){
+            displayLight.setPosition(0.388);
+        }
+        else if(highChamber == true){
+            displayLight.setPosition(0.5);
+        }
+        else if(highChamber == false){
+            displayLight.setPosition(0.611);
+        }
+        else{
+            displayLight.setPosition(1);
+        }
 
 
         //Drive Code
@@ -707,6 +722,10 @@ public class DriverControl extends OpMode {
         if(intakeAvoidTimer.milliseconds() > 500 && intakeAvoid){
             intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
             intakeAvoid = false;
+        }
+        if(gamepad2.y){
+            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_HANG);
+            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_HANG);
         }
 
 

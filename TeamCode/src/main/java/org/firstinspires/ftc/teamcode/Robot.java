@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-
 public class Robot {
     public static double INTAKE_TURRET_TRANSFER = 0.84;
     public static double INTAKE_TURRET_PICKUP_LEFT = 0.57;
@@ -31,7 +29,7 @@ public class Robot {
     public static double OUTTAKE_PIVOT_SPECIMEN_PICKUP = 1;
     public static double OUTTAKE_PIVOT_HIGH_SPECIMEN_SCORE = 0.350;
     public static double OUTTAKE_PIVOT_LOW_SPECIMEN_SCORE = 0.35;
-    public static double OUTTAKE_PIVOT_HANG = 0.7;
+    public static double OUTTAKE_PIVOT_HANG = 0.6;
     public static double OUTTAKE_TURRET_STRAIGHT = 0.49;
     public static double OUTTAKE_TURRET_LEFT90 = 0.17;
     public static double OUTTAKE_TURRET_RIGHT90 = 0.85;
@@ -40,6 +38,7 @@ public class Robot {
     public static double OUTTAKE_WRIST_SAMPLE_SCORE = 0.5;
     public static double OUTTAKE_WRIST_HIGH_SPECIMEN_SCORE = 0.6;
     public static double OUTTAKE_WRIST_LOW_SPECIMEN_SCORE = 0.6;
+    public static double OUTTAKE_WRIST_HANG = 0.5;
     public static double OUTTAKE_CLAW_OPEN = 0.4;
     public static double OUTTAKE_CLAW_CLOSE = 0.51;
     public static int OUTTAKE_MOTOR_RETRACT = 0;
@@ -50,14 +49,22 @@ public class Robot {
     public static double LEFT_PTO_DISENGAGE = 0.25;
     public static double LEFT_PTO_ENGAGE = 0.7; // 0.46 is loose // 0.51 is still slipping
     public static double RIGHT_PTO_DISENGAGE = 0.5;
-    public static double RIGHT_PTO_ENGAGE = 0.1; // 0.3 is loose, 0.2 is still too lose
+    public static double RIGHT_PTO_ENGAGE = 0.0; // 0.3 is loose, 0.2 is still too lose
+
+    //hang
+    public static int OUTTAKE_MOTOR_L2_PREPARE = 0;
+    public static int DRIVE_L2_HANG = 0;
+    public static int OUTTAKE_MOTOR_L3_PREPARE = 0;
+    public static int DRIVE_L3_HANG = 0;
+    public static int DRIVE_HANG_LOWER = 0;
+
 
 
     public static class intake {
         //flips intake turret
-        public static void intakeExtend(Servo intakeTurret){
+        public static void intakeTurretExtend(Servo intakeTurret){
             intakeTurret.setPosition(Robot.INTAKE_TURRET_PICKUP_STRAIGHT);
-            //rrSleep(0.2);
+
         }
         //flipse everything that isnt turret
         public static void intakeNonTurretExtend(Servo intakePivot, Servo intakeWrist, Servo intakeClaw){
@@ -108,17 +115,6 @@ public class Robot {
         public static void intakeClawClose(Servo intakeClaw){
             intakeClaw.setPosition(Robot.INTAKE_CLAW_CLOSE);
         }
-        public static void intakeClaw90(Servo intakeWrist){
-            intakeWrist.setPosition(Robot.INTAKE_WRIST_LEFT90);
-        }
-        public static void intakeClaw0(Servo intakeWrist){
-            intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
-        }
-//        public static void intakeAvoid(Servo intakePivot){
-//            intakePivot.setPosition(Robot.INTAKE_PIVOT_AVOID);
-//            rrSleep(0.5);
-//            intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
-//        }
 
     }
 
@@ -133,23 +129,19 @@ public class Robot {
 
         }
         //goes to sample score
-        public static void outtakeSampleScore(Servo intakePivot, Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist){
+        public static void outtakeSampleScore(Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist){
             outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SAMPLE_SCORE);
             outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SAMPLE_SCORE);
             outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
             outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SAMPLE_SCORE);
-            intakePivot.setPosition(Robot.INTAKE_PIVOT_AVOID);
-            intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
         }
         //goes to speicmen pickup
-        public static void outtakeSpecPickup(Servo intakePivot, Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist, Servo outtakeClaw){
+        public static void outtakeSpecPickup(Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist, Servo outtakeClaw){
             outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
             outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
             outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
             outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SPECIMEN_PICKUP);
             outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
-            intakePivot.setPosition(Robot.INTAKE_PIVOT_AVOID);
-            intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
         }
         //goes to score high cshamber
         public static void outtakeHighChamber(Servo outtakePivotLeft, Servo outtakePivotRight, Servo outtakeTurret, Servo outtakeWrist){

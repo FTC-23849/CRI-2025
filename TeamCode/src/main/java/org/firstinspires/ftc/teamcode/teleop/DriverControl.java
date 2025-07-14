@@ -74,12 +74,12 @@ public class DriverControl extends OpMode {
     boolean readyToDrop = false;// keeps track of if the robot is ready to drop sampel to hp
     double lastCycleTime = 0; // time when last cycle happened
     int totalCycleTimes = 1; // total amount of cycles
+
     boolean intakeAvoid = false; //checking if intake avoids outtake when pivoting
+    boolean ptoEngaged = false;
     ElapsedTime intakeAvoidTimer = new ElapsedTime(); // timer for intake to avoid outtake whne it pivots
     ElapsedTime intakeExtendTimer = new ElapsedTime(); // not needed, replaced with encder ticks for lowering intake after extending
     ElapsedTime runTime = new ElapsedTime(); // total time code has ran
-
-
     boolean startPressed = false;
     int startTimes = 0;
     boolean highChamber = true;
@@ -92,6 +92,10 @@ public class DriverControl extends OpMode {
     boolean outtakeRetracted = true;
     boolean transferring = false;
     ElapsedTime transferTimer = new ElapsedTime();
+    int hangCycle = 0;
+    ElapsedTime ptoDelay = new ElapsedTime();
+    ElapsedTime hangHold = new ElapsedTime();
+    boolean initalized = false;
 
 
 
@@ -172,10 +176,29 @@ public class DriverControl extends OpMode {
         telemetry.addData("readyToDrop", readyToDrop);
         telemetry.addData("intakeMotor", intakeMotor.getCurrentPosition());
         telemetry.addData("left slide motor", outtakeSlideMotor_left.getCurrentPosition());
+        telemetry.addData("intakeAvoid",intakeAvoid);
+        telemetry.addData("ptoEngaged",ptoEngaged);
+        telemetry.addData("intakeAvoidTimer",intakeAvoidTimer.milliseconds());
+        telemetry.addData("startPressed",startPressed);
+        telemetry.addData("startTimes",startTimes);
+        telemetry.addData("highChamber",highChamber);
+        telemetry.addData("goingToHighChamber",goingToHighChamber);
+        telemetry.addData("goingToLowChamber",goingToLowChamber);
+        telemetry.addData("goingToSampleScore",goingToSampleScore);
+        telemetry.addData("goingToTransfer",goingToTransfer);
+        telemetry.addData("goingToHang",goingToHang);
+        telemetry.addData("hanging",hanging);
+        telemetry.addData("outtakeRetracted",outtakeRetracted);
+        telemetry.addData("transferring",transferring);
+        telemetry.addData("transferTimer",transferTimer.milliseconds());
+        telemetry.addData("hangCycle",hangCycle);
+        telemetry.addData("ptoDelay",ptoDelay.milliseconds());
+        telemetry.addData("hangHold",hangHold);
         telemetry.update();
 
+
         if(totalCycleTimes == 1){
-            intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_AVOID);
             intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
             intakeTurret.setPosition(Robot.INTAKE_TURRET_TRANSFER);
             intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
@@ -187,37 +210,45 @@ public class DriverControl extends OpMode {
             leftPto.setPosition(Robot.LEFT_PTO_DISENGAGE);
             rightPto.setPosition(Robot.RIGHT_PTO_DISENGAGE);
         }
+        if(runTime.milliseconds() > 1000 && initalized == false){
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
+            initalized = true;
+        }
         totalCycleTimes = totalCycleTimes+1;
-
-        if(scoringSpec == false){
-            displayLight.setPosition(0.388);
-        }
-        else if(highChamber == true){
-            displayLight.setPosition(0.5);
-        }
-        else if(highChamber == false){
-            displayLight.setPosition(0.611);
-        }
-        else{
-            displayLight.setPosition(1);
+        if(gamepad1.left_stick_button) {
+            if (scoringSpec == false) {
+                displayLight.setPosition(0.388);
+            } else if (highChamber == true) {
+                displayLight.setPosition(0.5);
+            } else if (highChamber == false) {
+                displayLight.setPosition(0.611);
+            } else {
+                displayLight.setPosition(1);
+            }
         }
 
 
         //Drive Code
-        double y = -gamepad1.left_stick_y; // Remember, Y stick is reversed!
-        double x = gamepad1.left_stick_x;
-        double rx = gamepad1.right_stick_x;
+        if (hanging == false) {
 
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double leftFrontPower = (y + x + rx) / denominator;
-        double leftBackPower = (y - x + rx) / denominator;
-        double rightFrontPower = (y - x - rx) / denominator;
-        double rightBackPower = (y + x - rx) / denominator;
 
-        leftFrontMotor.setPower(leftFrontPower);
-        leftBackMotor.setPower(leftBackPower);
-        rightFrontMotor.setPower(rightFrontPower);
-        rightBackMotor.setPower(rightBackPower);
+            double y = -gamepad1.left_stick_y; // Remember, Y stick is reversed!
+            double x = gamepad1.left_stick_x;
+            double rx = gamepad1.right_stick_x;
+
+            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+            double leftFrontPower = (y + x + rx) / denominator;
+            double leftBackPower = (y - x + rx) / denominator;
+            double rightFrontPower = (y - x - rx) / denominator;
+            double rightBackPower = (y + x - rx) / denominator;
+
+            leftFrontMotor.setPower(leftFrontPower);
+            leftBackMotor.setPower(leftBackPower);
+            rightFrontMotor.setPower(rightFrontPower);
+            rightBackMotor.setPower(rightBackPower);
+        }
+
+
 
         //intake
         if(gamepad1.right_bumper){
@@ -489,7 +520,7 @@ public class DriverControl extends OpMode {
             intakeMotor.setPower(gamepad1.right_trigger);
         }
         //retracts intake
-        else if (gamepad1.left_trigger != 0.0 && gamepad1.a == false) {
+        else if (gamepad1.left_trigger > 0.1 && gamepad1.a == false) {
             intakeMotor.setTargetPosition(Robot.INTAKE_MOTOR_RETRACT);
             intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             intakeMotor.setPower(1);
@@ -560,11 +591,15 @@ public class DriverControl extends OpMode {
         if(gamepad2.a){
             leftPto.setPosition(Robot.LEFT_PTO_ENGAGE);
             rightPto.setPosition(Robot.RIGHT_PTO_ENGAGE);
+            ptoEngaged = true;
         }
         if(gamepad2.b){
             leftPto.setPosition(Robot.LEFT_PTO_DISENGAGE);
             rightPto.setPosition(Robot.RIGHT_PTO_DISENGAGE);
+            ptoEngaged = false;
         }
+
+
 
 
         //Outtake Code
@@ -601,21 +636,21 @@ public class DriverControl extends OpMode {
         }
         //flips outtake arm to pick up sample
         if(gamepad1.right_bumper && intakeRetracted && scoringSpec && scoringCycle == 1){
-            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
-            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
-            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
-            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SPECIMEN_PICKUP);
-            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
-            outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
-            outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
-            outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            outtakeSlideMotor_left.setPower(1);
-            outtakeSlideMotor_right.setPower(1);
-            outtakeRetracted = true;
-            goingToTransfer = true;
-            goingToLowChamber = false;
-            goingToHighChamber = false;
+//            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
+//            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
+//            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+//            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SPECIMEN_PICKUP);
+//            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
+//            outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
+//            outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
+//            outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            outtakeSlideMotor_left.setPower(1);
+//            outtakeSlideMotor_right.setPower(1);
+//            outtakeRetracted = true;
+//            goingToTransfer = true;
+//            goingToLowChamber = false;
+//            goingToHighChamber = false;
             intakeAvoid = true;
             intakeAvoidTimer.reset();
         }
@@ -625,7 +660,6 @@ public class DriverControl extends OpMode {
             outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
             outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SPECIMEN_PICKUP);
             outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
-            //Robot.outtake.outtakeSpecPickup(intakePivot, outtakePivotLeft, outtakePivotRight, outtakeTurret, outtakeWrist, outtakeClaw);
             outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
             outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
             outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -691,7 +725,6 @@ public class DriverControl extends OpMode {
             goingToSampleScore = true;
             intakeAvoid = true;
             intakeAvoidTimer.reset();
-            //Robot.outtake.outtakeSampleScore(intakePivot, outtakePivotLeft, outtakePivotRight, outtakeTurret, outtakeWrist);
         }
         if(gamepad1.right_bumper && intakeRetracted && !scoringSpec && scoringCycle == 2){
             outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
@@ -729,6 +762,91 @@ public class DriverControl extends OpMode {
             outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_HANG);
             outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_HANG);
         }
+
+        if(gamepad1.right_stick_button && gamepad1.left_stick_button){
+            hanging = true;
+            outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_L2_PREPARE);
+            outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_L2_PREPARE);
+            outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            outtakeSlideMotor_left.setPower(1);
+            outtakeSlideMotor_right.setPower(1);
+            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_HANG);
+            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_HANG);
+            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_HANG);
+            hangCycle = 1;
+        }
+        if(hangCycle == 1 && (outtakeSlideMotor_left.getCurrentPosition() < Robot.OUTTAKE_MOTOR_L2_PREPARE)){
+            rightPto.setPosition(Robot.RIGHT_PTO_ENGAGE);
+            leftPto.setPosition(Robot.LEFT_PTO_ENGAGE);
+            outtakeSlideMotor_left.setPower(0);
+            outtakeSlideMotor_left.setPower(0);
+            ptoDelay.reset();
+        }
+        if(hangCycle == 1 && ptoDelay.milliseconds() > 250 && ptoDelay.milliseconds() < 500){
+            leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftFrontMotor.setTargetPosition(Robot.DRIVE_L2_HANG);
+            leftBackMotor.setTargetPosition((Robot.DRIVE_L2_HANG));
+            rightFrontMotor.setTargetPosition(Robot.DRIVE_L2_HANG);
+            rightBackMotor.setTargetPosition(Robot.DRIVE_L2_HANG);
+            leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftFrontMotor.setPower(1);
+            leftBackMotor.setPower(1);
+            rightFrontMotor.setPower(1);
+            rightBackMotor.setPower(1);
+            hangCycle = 2;
+        }
+        if(hangCycle == 2 && leftFrontMotor.getCurrentPosition() == Robot.DRIVE_L2_HANG){
+            rightPto.setPosition(Robot.RIGHT_PTO_DISENGAGE);
+            leftPto.setPosition(Robot.LEFT_PTO_DISENGAGE);
+            ptoDelay.reset();
+        }
+        if(hangCycle == 2 && ptoDelay.milliseconds() > 250 && ptoDelay.milliseconds() < 500){
+            outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_L3_PREPARE);
+            outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_L3_PREPARE);
+            outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            outtakeSlideMotor_left.setPower(1);
+            outtakeSlideMotor_right.setPower(1);
+            hangCycle = 3;
+        }
+        if(hangCycle == 3 && (outtakeSlideMotor_left.getCurrentPosition() < Robot.OUTTAKE_MOTOR_L3_PREPARE)){
+            rightPto.setPosition(Robot.RIGHT_PTO_ENGAGE);
+            leftPto.setPosition(Robot.LEFT_PTO_ENGAGE);
+            outtakeSlideMotor_left.setPower(0);
+            outtakeSlideMotor_left.setPower(0);
+            ptoDelay.reset();
+        }
+        if(hangCycle == 3 && ptoDelay.milliseconds() > 250 && ptoDelay.milliseconds() < 500){
+            leftFrontMotor.setTargetPosition(Robot.DRIVE_L3_HANG);
+            leftBackMotor.setTargetPosition((Robot.DRIVE_L3_HANG));
+            rightFrontMotor.setTargetPosition(Robot.DRIVE_L3_HANG);
+            rightBackMotor.setTargetPosition(Robot.DRIVE_L3_HANG);
+            leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftFrontMotor.setPower(1);
+            leftBackMotor.setPower(1);
+            rightFrontMotor.setPower(1);
+            rightBackMotor.setPower(1);
+            hangCycle = 4;
+        }
+        if(hangCycle == 4 && hangHold.milliseconds() < 10000){
+            leftFrontMotor.setPower(Robot.DRIVE_HANG_LOWER);
+            leftBackMotor.setPower(Robot.DRIVE_HANG_LOWER);
+            rightFrontMotor.setPower(Robot.DRIVE_HANG_LOWER);
+            rightBackMotor.setPower(Robot.DRIVE_HANG_LOWER);
+        }
+
+
 
 
 

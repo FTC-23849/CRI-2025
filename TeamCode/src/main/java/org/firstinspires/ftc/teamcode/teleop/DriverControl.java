@@ -601,21 +601,21 @@ public class DriverControl extends OpMode {
         }
         //flips outtake arm to pick up sample
         if(gamepad1.right_bumper && intakeRetracted && scoringSpec && scoringCycle == 1){
-//            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
-//            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
-//            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
-//            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SPECIMEN_PICKUP);
-//            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
-//            outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
-//            outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
-//            outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            outtakeSlideMotor_left.setPower(1);
-//            outtakeSlideMotor_right.setPower(1);
-//            outtakeRetracted = true;
-//            goingToTransfer = true;
-//            goingToLowChamber = false;
-//            goingToHighChamber = false;
+            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
+            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
+            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SPECIMEN_PICKUP);
+            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
+            outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
+            outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
+            outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            outtakeSlideMotor_left.setPower(1);
+            outtakeSlideMotor_right.setPower(1);
+            outtakeRetracted = true;
+            goingToTransfer = true;
+            goingToLowChamber = false;
+            goingToHighChamber = false;
             intakeAvoid = true;
             intakeAvoidTimer.reset();
         }
@@ -625,6 +625,7 @@ public class DriverControl extends OpMode {
             outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
             outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SPECIMEN_PICKUP);
             outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
+            //Robot.outtake.outtakeSpecPickup(intakePivot, outtakePivotLeft, outtakePivotRight, outtakeTurret, outtakeWrist, outtakeClaw);
             outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
             outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
             outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -690,6 +691,7 @@ public class DriverControl extends OpMode {
             goingToSampleScore = true;
             intakeAvoid = true;
             intakeAvoidTimer.reset();
+            //Robot.outtake.outtakeSampleScore(intakePivot, outtakePivotLeft, outtakePivotRight, outtakeTurret, outtakeWrist);
         }
         if(gamepad1.right_bumper && intakeRetracted && !scoringSpec && scoringCycle == 2){
             outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);

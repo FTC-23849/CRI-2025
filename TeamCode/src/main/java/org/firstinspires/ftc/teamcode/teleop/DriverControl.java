@@ -73,6 +73,8 @@ public class DriverControl extends OpMode {
     boolean readyToDrop = false;// keeps track of if the robot is ready to drop sampel to hp
     double lastCycleTime = 0; // time when last cycle happened
     int totalCycleTimes = 1; // total amount of cycles
+    boolean intakeAvoid = false; //checking if intake avoids outtake when pivoting
+    ElapsedTime intakeAvoidTimer = new ElapsedTime(); // timer for intake to avoid outtake whne it pivots
     ElapsedTime intakeExtendTimer = new ElapsedTime(); // not needed, replaced with encder ticks for lowering intake after extending
     ElapsedTime runTime = new ElapsedTime(); // total time code has ran
 
@@ -303,6 +305,22 @@ public class DriverControl extends OpMode {
             if(intakePickupCycle == 2){
                 intakePickupCycle = 0;
             }
+            if(outtakeRetracted == false){
+                goingToSampleScore = false;
+                outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
+                outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
+                outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                outtakeSlideMotor_left.setPower(1);
+                outtakeSlideMotor_right.setPower(1);
+                goingToTransfer = true;
+                outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_TRANSFER);
+                outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_TRANSFER);
+                outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+                outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_TRANSFER);
+                outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
+                scoringCycle = 0;
+            }
 
         }
         else{
@@ -432,7 +450,7 @@ public class DriverControl extends OpMode {
         }
         // the && gamepad1.a == false makes sure nothing happens when intake motors are adjusted
         // drops intake if intake is far enough away so intake doesnt hit robot
-        if(intakeMotor.getCurrentPosition() > Robot.INTAKE_LOWER_ENCODER_TICKS && gamepad1.right_trigger > 0 && gamepad1.a == false ){
+        if(intakeMotor.getCurrentPosition() > Robot.INTAKE_LOWER_ENCODER_TICKS && gamepad1.right_trigger > 0 && gamepad1.a == false && gamepad1.b == false ){
             intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
             intakePivot.setPosition(Robot.INTAKE_PIVOT_PICKUP_READY);
             intakeWrist.setPosition(Robot.INTAKE_WRIST_STRAIGHT);
@@ -444,7 +462,7 @@ public class DriverControl extends OpMode {
 
         }
 
-        if(gamepad1.right_trigger > 0 && gamepad1.a == false){
+        if(gamepad1.right_trigger > 0 && gamepad1.a == false && gamepad1.b == false){
             // just sets some things
             intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             intakeRetracting = false;
@@ -452,7 +470,7 @@ public class DriverControl extends OpMode {
             intakeTurret.setPosition(Robot.INTAKE_TURRET_PICKUP_STRAIGHT);
         }
         // powers intake motors if there less then the max extension
-        if (gamepad1.right_trigger != 0.0 && intakeMotor.getCurrentPosition() < Robot.INTAKE_MOTOR_MAX_EXTEND && gamepad1.a == false) {
+        if (gamepad1.right_trigger != 0.0 && intakeMotor.getCurrentPosition() < Robot.INTAKE_MOTOR_MAX_EXTEND && gamepad1.a == false && gamepad1.b == false) {
             intakeMotor.setPower(gamepad1.right_trigger);
         }
         //retracts intake
@@ -471,7 +489,7 @@ public class DriverControl extends OpMode {
 
         }
         //manual controls of intake motor
-        else if(gamepad1.right_trigger > 0 && gamepad1.a){
+        else if(gamepad1.right_trigger > 0 && gamepad1.a && gamepad1.b == false){
             intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             intakeMotor.setPower(gamepad1.right_trigger);
         }
@@ -492,9 +510,11 @@ public class DriverControl extends OpMode {
         }
         //auto transfer
         if(transferring && intakeMotor.getCurrentPosition() < 5){
-            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_CLOSE);
             transferTimer.reset();
             transferring = false;
+        }
+        if(transferTimer.milliseconds() > 100 && transferTimer.milliseconds() < 200){
+            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_CLOSE);
         }
         if(transferTimer.milliseconds() > 200 && transferTimer.milliseconds() < 300){
             intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
@@ -513,6 +533,8 @@ public class DriverControl extends OpMode {
             outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SAMPLE_SCORE);
             outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
             outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SAMPLE_SCORE);
+            intakeAvoid = true;
+            intakeAvoidTimer.reset();
         }
 
 
@@ -545,12 +567,44 @@ public class DriverControl extends OpMode {
             outtakeSlideMotor_right.setPower(gamepad2.right_stick_y);
             //setting power to zero only if nothing is happening
 
-        } else if (!goingToHighChamber && !goingToLowChamber && !goingToSampleScore && !goingToTransfer && !goingToHang && !hanging) {
+        }
+        else if((gamepad1.right_trigger > 0.1 || gamepad1.left_trigger > 0.1) && gamepad1.b){
+            outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            outtakeSlideMotor_left.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+            outtakeSlideMotor_right.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+
+
+        }
+        else if(gamepad1.b){
+            outtakeSlideMotor_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            outtakeSlideMotor_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        else if (!goingToHighChamber && !goingToLowChamber && !goingToSampleScore && !goingToTransfer && !goingToHang && !hanging) {
             outtakeSlideMotor_left.setPower(0);
             outtakeSlideMotor_right.setPower(0);
         }
         //flips outtake arm to pick up sample
         if(gamepad1.right_bumper && intakeRetracted && scoringSpec && scoringCycle == 1){
+//            outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
+//            outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
+//            outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
+//            outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SPECIMEN_PICKUP);
+//            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
+//            outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
+//            outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
+//            outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            outtakeSlideMotor_left.setPower(1);
+//            outtakeSlideMotor_right.setPower(1);
+//            outtakeRetracted = true;
+//            goingToTransfer = true;
+//            goingToLowChamber = false;
+//            goingToHighChamber = false;
+            intakeAvoid = true;
+            intakeAvoidTimer.reset();
+        }
+        if(scoringCycle == 1 && scoringSpec && intakeAvoidTimer.milliseconds() > 250 && intakeAvoidTimer.milliseconds() < 500){
             outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
             outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_SPECIMEN_PICKUP);
             outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
@@ -566,6 +620,7 @@ public class DriverControl extends OpMode {
             goingToTransfer = true;
             goingToLowChamber = false;
             goingToHighChamber = false;
+
         }
         //doesnt continously power motors when they are all the way down
         if((outtakeSlideMotor_right.getCurrentPosition() >-5 || outtakeSlideMotor_left.getCurrentPosition() > -5) && goingToTransfer == true){
@@ -618,6 +673,8 @@ public class DriverControl extends OpMode {
             outtakeSlideMotor_left.setPower(1);
             outtakeSlideMotor_right.setPower(1);
             goingToSampleScore = true;
+            intakeAvoid = true;
+            intakeAvoidTimer.reset();
         }
         if(gamepad1.right_bumper && intakeRetracted && !scoringSpec && scoringCycle == 2){
             outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
@@ -628,7 +685,7 @@ public class DriverControl extends OpMode {
             outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
             outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_SAMPLE_SCORE);
         }
-        if((gamepad1.right_bumper && intakeRetracted && !scoringSpec && scoringCycle == 0) || (scoringSpec == false && gamepad1.right_trigger > 0.1)){
+        if((gamepad1.right_bumper && intakeRetracted && !scoringSpec && scoringCycle == 0) || (outtakeRetracted && gamepad1.right_trigger > 0.1 && gamepad1.a == false && gamepad1.b == false)){
             goingToSampleScore = false;
             outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
             outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_RETRACT);
@@ -641,6 +698,15 @@ public class DriverControl extends OpMode {
             outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_TRANSFER);
             outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
             outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_TRANSFER);
+            outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_OPEN);
+        }
+
+        if(intakeAvoid && intakeAvoidTimer.milliseconds() < 500){
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_AVOID);
+        }
+        if(intakeAvoidTimer.milliseconds() > 500 && intakeAvoid){
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
+            intakeAvoid = false;
         }
 
 

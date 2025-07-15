@@ -55,9 +55,9 @@ public class Robot {
     //hang
     public static int OUTTAKE_MOTOR_L2_PREPARE = -500;
     public static int DRIVE_L2_HANG = 0;
-    public static int OUTTAKE_MOTOR_L3_PREPARE = 0;
+    public static int OUTTAKE_MOTOR_L3_PREPARE = -750;
     public static int DRIVE_L3_HANG = 0;
-    public static int DRIVE_HANG_LOWER = 0;
+    public static double DRIVE_HANG_LOWER = -0.2;
 
 
 

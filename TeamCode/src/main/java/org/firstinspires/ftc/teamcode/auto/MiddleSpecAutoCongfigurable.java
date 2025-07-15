@@ -555,7 +555,7 @@ public class MiddleSpecAutoCongfigurable extends LinearOpMode {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
 
-            Robot.outtake.outtakeSpecPickup(intakePivot, outtakePivotLeft, outtakePivotRight, outtakeTurret, outtakeWrist, outtakeClaw);
+            Robot.outtake.outtakeSpecPickup(outtakePivotLeft, outtakePivotRight, outtakeTurret, outtakeWrist, outtakeClaw);
 
             return false;
         }

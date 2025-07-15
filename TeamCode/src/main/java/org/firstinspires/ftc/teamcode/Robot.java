@@ -9,11 +9,12 @@ public class Robot {
     public static double INTAKE_TURRET_PICKUP_STRAIGHT = 0.32;
     public static double INTAKE_TURRET_DROP_LEFT = 0.60;
     public static double INTAKE_TURRET_DROP_RIGHT = 0.02;
-    public static double INTAKE_PIVOT_TRANSFER = 0.35;
+    public static double INTAKE_PIVOT_TRANSFER = 0.37;
     public static double INTAKE_PIVOT_PICKUP_READY = 0.11;
     public static double INTAKE_PIVOT_PICKUP = 0.06;
     public static double INTAKE_PIVOT_DROP = 0.2;
     public static double INTAKE_PIVOT_AVOID = 0.7;
+    public static double INTAKE_PIVOT_RETRACT = 0.33;
     public static double INTAKE_WRIST_STRAIGHT = 0.4;// 0.07 works, 0.574 should, done math to test
     public static double INTAKE_WRIST_LEFT90 = 0.66;
     public static double INTAKE_WRIST_RIGHT90 = 0.07;
@@ -47,12 +48,12 @@ public class Robot {
     public static int OUTTAKE_MOTOR_HIGH_SPECIMEN_SCORE = -400;
     public static int OUTTAKE_MOTOR_LOW_SPECIMEN_SCORE = 0;
     public static double LEFT_PTO_DISENGAGE = 0.25;
-    public static double LEFT_PTO_ENGAGE = 0.7; // 0.46 is loose // 0.51 is still slipping
+    public static double LEFT_PTO_ENGAGE = 1; // 0.46 is loose // 0.51 is still slipping
     public static double RIGHT_PTO_DISENGAGE = 0.5;
     public static double RIGHT_PTO_ENGAGE = 0.0; // 0.3 is loose, 0.2 is still too lose
 
     //hang
-    public static int OUTTAKE_MOTOR_L2_PREPARE = 0;
+    public static int OUTTAKE_MOTOR_L2_PREPARE = -500;
     public static int DRIVE_L2_HANG = 0;
     public static int OUTTAKE_MOTOR_L3_PREPARE = 0;
     public static int DRIVE_L3_HANG = 0;

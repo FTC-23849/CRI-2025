@@ -52,7 +52,7 @@ public class Robot {
     public static double RIGHT_PTO_DISENGAGE = 0.5;
     public static double RIGHT_PTO_ENGAGE = 0.0; // 0.3 is loose, 0.2 is still too lose
 
-    //hang
+    //hange
     public static int OUTTAKE_MOTOR_L2_PREPARE = -500;
     public static int DRIVE_L2_HANG = 0;
     public static int OUTTAKE_MOTOR_L3_PREPARE = -850;

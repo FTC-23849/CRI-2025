@@ -853,7 +853,7 @@ public class DriverControl extends OpMode {
             rightBackMotor.setPower(-0.3);
             hangTimer.reset();
             hangCycle = 6;
-        }
+        }//e
         if(hangCycle == 6 && hangTimer.milliseconds() > 1000 && hangTimer.milliseconds() < 1100){
             rightPto.setPosition(Robot.RIGHT_PTO_DISENGAGE);
             leftPto.setPosition(Robot.LEFT_PTO_DISENGAGE);

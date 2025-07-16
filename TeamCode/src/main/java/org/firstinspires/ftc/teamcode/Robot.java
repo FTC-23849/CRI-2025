@@ -14,7 +14,7 @@ public class Robot {
     public static double INTAKE_PIVOT_PICKUP = 0.06;
     public static double INTAKE_PIVOT_DROP = 0.2;
     public static double INTAKE_PIVOT_AVOID = 0.7;
-    public static double INTAKE_PIVOT_RETRACT = 0.33;
+    public static double INTAKE_PIVOT_RETRACT = 0.35;
     public static double INTAKE_WRIST_STRAIGHT = 0.4;// 0.07 works, 0.574 should, done math to test
     public static double INTAKE_WRIST_LEFT90 = 0.66;
     public static double INTAKE_WRIST_RIGHT90 = 0.07;
@@ -55,7 +55,7 @@ public class Robot {
     //hang
     public static int OUTTAKE_MOTOR_L2_PREPARE = -500;
     public static int DRIVE_L2_HANG = 0;
-    public static int OUTTAKE_MOTOR_L3_PREPARE = -750;
+    public static int OUTTAKE_MOTOR_L3_PREPARE = -850;
     public static int DRIVE_L3_HANG = 0;
     public static double DRIVE_HANG_LOWER = -0.2;
 

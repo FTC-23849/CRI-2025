@@ -19,7 +19,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 package org.firstinspires.ftc.teamcode.teleop;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.FLOAT;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -96,8 +95,6 @@ public class DriverControl extends OpMode {
     int hangCycle = 0;
     ElapsedTime ptoDelay = new ElapsedTime();
     ElapsedTime hangHold = new ElapsedTime();
-    ElapsedTime hangDrop = new ElapsedTime();
-    ElapsedTime hangTimer = new ElapsedTime();
     boolean initalized = false;
 
 
@@ -197,13 +194,6 @@ public class DriverControl extends OpMode {
         telemetry.addData("hangCycle",hangCycle);
         telemetry.addData("ptoDelay",ptoDelay.milliseconds());
         telemetry.addData("hangHold",hangHold);
-        telemetry.addData("initalized", initalized);
-        telemetry.addData("lf", leftFrontMotor.getCurrentPosition());
-        telemetry.addData("rf", rightFrontMotor.getCurrentPosition());
-        telemetry.addData("lb", rightFrontMotor.getCurrentPosition());
-        telemetry.addData("rb", rightBackMotor.getCurrentPosition());
-        telemetry.addData("slideMotorLeft", outtakeSlideMotor_left.getCurrentPosition());
-        telemetry.addData("hangTimer", hangTimer.milliseconds());
         telemetry.update();
 
 
@@ -220,7 +210,7 @@ public class DriverControl extends OpMode {
             leftPto.setPosition(Robot.LEFT_PTO_DISENGAGE);
             rightPto.setPosition(Robot.RIGHT_PTO_DISENGAGE);
         }
-        if(runTime.milliseconds() > 5000 && initalized == false){
+        if(runTime.milliseconds() > 1000 && initalized == false){
             intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
             initalized = true;
         }
@@ -235,9 +225,6 @@ public class DriverControl extends OpMode {
             } else {
                 displayLight.setPosition(1);
             }
-        }
-        else{
-            displayLight.setPosition(0);
         }
 
 
@@ -572,10 +559,10 @@ public class DriverControl extends OpMode {
             transferTimer.reset();
             transferring = false;
         }
-        if(transferTimer.milliseconds() > 200 && transferTimer.milliseconds() < 300){
+        if(transferTimer.milliseconds() > 100 && transferTimer.milliseconds() < 200){
             outtakeClaw.setPosition(Robot.OUTTAKE_CLAW_CLOSE);
         }
-        if(transferTimer.milliseconds() > 300 && transferTimer.milliseconds() < 400){
+        if(transferTimer.milliseconds() > 200 && transferTimer.milliseconds() < 300){
             intakeClaw.setPosition(Robot.INTAKE_CLAW_OPEN);
         }
         //goes to score sample
@@ -768,149 +755,96 @@ public class DriverControl extends OpMode {
             intakePivot.setPosition(Robot.INTAKE_PIVOT_AVOID);
         }
         if(intakeAvoidTimer.milliseconds() > 500 && intakeAvoid){
-            intakePivot.setPosition(Robot.INTAKE_PIVOT_RETRACT);
+            intakePivot.setPosition(Robot.INTAKE_PIVOT_TRANSFER);
             intakeAvoid = false;
         }
         if(gamepad2.y){
             outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_HANG);
             outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_HANG);
         }
-        //raises slides for hang
+
         if(gamepad1.right_stick_button && gamepad1.left_stick_button){
             hanging = true;
             outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_L2_PREPARE);
             outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_L2_PREPARE);
             outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            outtakeSlideMotor_left.setPower(0.2);
-            outtakeSlideMotor_right.setPower(0.2);
+            outtakeSlideMotor_left.setPower(1);
+            outtakeSlideMotor_right.setPower(1);
             outtakePivotLeft.setPosition(Robot.OUTTAKE_PIVOT_HANG);
             outtakePivotRight.setPosition(Robot.OUTTAKE_PIVOT_HANG);
             outtakeTurret.setPosition(Robot.OUTTAKE_TURRET_STRAIGHT);
             outtakeWrist.setPosition(Robot.OUTTAKE_WRIST_HANG);
-            intakePivot.setPosition(Robot.INTAKE_PIVOT_AVOID);
             hangCycle = 1;
         }
-        //lets hook drop on l2 bar
-        if(hangCycle == 1 && (outtakeSlideMotor_left.getCurrentPosition() < (Robot.OUTTAKE_MOTOR_L2_PREPARE + 50))/* && hangTimer.milliseconds() > 1000*/){
-            hangTimer.reset();
-            outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            outtakeSlideMotor_left.setZeroPowerBehavior(FLOAT);
-            outtakeSlideMotor_right.setZeroPowerBehavior(FLOAT);
-            outtakeSlideMotor_left.setPower(0);
-            outtakeSlideMotor_left.setPower(0);
-            hangCycle = 2;
-        }
-        //engages pto
-        if(hangCycle == 2 && hangTimer.milliseconds() > 1000 && hangTimer.milliseconds() < 1200){
+        if(hangCycle == 1 && (outtakeSlideMotor_left.getCurrentPosition() < Robot.OUTTAKE_MOTOR_L2_PREPARE)){
             rightPto.setPosition(Robot.RIGHT_PTO_ENGAGE);
             leftPto.setPosition(Robot.LEFT_PTO_ENGAGE);
-            hangTimer.reset();
-            hangCycle = 3;
+            outtakeSlideMotor_left.setPower(0);
+            outtakeSlideMotor_left.setPower(0);
+            ptoDelay.reset();
         }
-        //goes to l2 hang
-        if(hangCycle == 3 && hangTimer.milliseconds() > 500 && hangTimer.milliseconds() < 750){
+        if(hangCycle == 1 && ptoDelay.milliseconds() > 250 && ptoDelay.milliseconds() < 500){
             leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            leftFrontMotor.setTargetPosition(Robot.DRIVE_L2_HANG);
-//            leftBackMotor.setTargetPosition((Robot.DRIVE_L2_HANG));
-//            rightFrontMotor.setTargetPosition(Robot.DRIVE_L2_HANG);
-//            rightBackMotor.setTargetPosition(Robot.DRIVE_L2_HANG);
-//            leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftFrontMotor.setTargetPosition(Robot.DRIVE_L2_HANG);
+            leftBackMotor.setTargetPosition((Robot.DRIVE_L2_HANG));
+            rightFrontMotor.setTargetPosition(Robot.DRIVE_L2_HANG);
+            rightBackMotor.setTargetPosition(Robot.DRIVE_L2_HANG);
+            leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             leftFrontMotor.setPower(1);
             leftBackMotor.setPower(1);
             rightFrontMotor.setPower(1);
             rightBackMotor.setPower(1);
-            hangCycle = 4;
+            hangCycle = 2;
         }
-        //lets bot drop slowly
-        if(hangCycle ==4 && outtakeSlideMotor_left.getCurrentPosition() > Robot.DRIVE_L2_HANG+15){
-            leftFrontMotor.setZeroPowerBehavior(FLOAT);
-            leftBackMotor.setZeroPowerBehavior(FLOAT);
-            rightFrontMotor.setZeroPowerBehavior(FLOAT);
-            rightBackMotor.setZeroPowerBehavior(FLOAT);
-            leftFrontMotor.setPower(-0.2);
-            leftBackMotor.setPower(-0.2);
-            rightFrontMotor.setPower(-0.2);
-            rightBackMotor.setPower(-0.2);
-            hangTimer.reset();
-            hangCycle = 5;
-
-        }
-        /*if(hangCycle == 5 && hangTimer.milliseconds() > 500 && hangTimer.milliseconds() < 750){
+        if(hangCycle == 2 && leftFrontMotor.getCurrentPosition() == Robot.DRIVE_L2_HANG){
             rightPto.setPosition(Robot.RIGHT_PTO_DISENGAGE);
             leftPto.setPosition(Robot.LEFT_PTO_DISENGAGE);
+            ptoDelay.reset();
+        }
+        if(hangCycle == 2 && ptoDelay.milliseconds() > 250 && ptoDelay.milliseconds() < 500){
             outtakeSlideMotor_left.setTargetPosition(Robot.OUTTAKE_MOTOR_L3_PREPARE);
             outtakeSlideMotor_right.setTargetPosition(Robot.OUTTAKE_MOTOR_L3_PREPARE);
             outtakeSlideMotor_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             outtakeSlideMotor_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             outtakeSlideMotor_left.setPower(1);
             outtakeSlideMotor_right.setPower(1);
-            leftFrontMotor.setPower(0);
-            leftBackMotor.setPower(0);
-            rightFrontMotor.setPower(0);
-            rightBackMotor.setPower(0);
-            hangCycle = 6;
+            hangCycle = 3;
         }
-        if(hangCycle == 6 && (outtakeSlideMotor_left.getCurrentPosition() < Robot.OUTTAKE_MOTOR_L3_PREPARE + 50)){
+        if(hangCycle == 3 && (outtakeSlideMotor_left.getCurrentPosition() < Robot.OUTTAKE_MOTOR_L3_PREPARE)){
             rightPto.setPosition(Robot.RIGHT_PTO_ENGAGE);
             leftPto.setPosition(Robot.LEFT_PTO_ENGAGE);
             outtakeSlideMotor_left.setPower(0);
             outtakeSlideMotor_left.setPower(0);
-            hangTimer.reset();
-            hangCycle = 7;
+            ptoDelay.reset();
         }
-        if(hangCycle == 7 && hangTimer.milliseconds() > 250 && hangTimer.milliseconds() < 500){
-//            leftFrontMotor.setTargetPosition(Robot.DRIVE_L3_HANG);
-//            leftBackMotor.setTargetPosition((Robot.DRIVE_L3_HANG));
-//            rightFrontMotor.setTargetPosition(Robot.DRIVE_L3_HANG);
-//            rightBackMotor.setTargetPosition(Robot.DRIVE_L3_HANG);
-//            leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        if(hangCycle == 3 && ptoDelay.milliseconds() > 250 && ptoDelay.milliseconds() < 500){
+            leftFrontMotor.setTargetPosition(Robot.DRIVE_L3_HANG);
+            leftBackMotor.setTargetPosition((Robot.DRIVE_L3_HANG));
+            rightFrontMotor.setTargetPosition(Robot.DRIVE_L3_HANG);
+            rightBackMotor.setTargetPosition(Robot.DRIVE_L3_HANG);
+            leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             leftFrontMotor.setPower(1);
             leftBackMotor.setPower(1);
             rightFrontMotor.setPower(1);
             rightBackMotor.setPower(1);
-            hangCycle = 8;
+            hangCycle = 4;
         }
-        if(hangCycle == 8 && outtakeSlideMotor_left.getCurrentPosition() > Robot.DRIVE_L3_HANG + 15){
-            leftFrontMotor.setPower(0);
-            leftBackMotor.setPower(0);
-            rightFrontMotor.setPower(0);
-            rightBackMotor.setPower(0);
-            hangCycle = 9;
-        }
-        if(hangCycle == 9 && hangTimer.milliseconds() < 10000){
-            leftFrontMotor.setPower(0);
-            leftBackMotor.setPower(0);
-            rightFrontMotor.setPower(0);
-            rightBackMotor.setPower(0);
-        }
-        if(hangCycle == 9 && hangTimer.milliseconds() > 10000 && hangTimer.milliseconds() < 15000){
+        if(hangCycle == 4 && hangHold.milliseconds() < 10000){
             leftFrontMotor.setPower(Robot.DRIVE_HANG_LOWER);
             leftBackMotor.setPower(Robot.DRIVE_HANG_LOWER);
             rightFrontMotor.setPower(Robot.DRIVE_HANG_LOWER);
             rightBackMotor.setPower(Robot.DRIVE_HANG_LOWER);
         }
-        if(hangCycle == 9 && hangTimer.milliseconds() > 15000 && hangTimer.milliseconds() < 16000){
-            leftFrontMotor.setPower(0);
-            leftBackMotor.setPower(0);
-            rightFrontMotor.setPower(0);
-            rightBackMotor.setPower(0);
-            }
-         */
 
 
 
